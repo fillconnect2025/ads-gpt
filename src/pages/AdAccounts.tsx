@@ -1,12 +1,12 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Facebook, Instagram, Plus, RefreshCcw, Search, Trash2 } from 'lucide-react';
-import { Input } from '@/components/ui/input';
 import AdAccountSelector, { AdAccount } from '@/components/AdAccountSelector';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { Facebook, Instagram, Plus, RefreshCcw, Search, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 
 // Dados simulados
 const mockAccounts: AdAccount[] = [

@@ -18,6 +18,7 @@ export interface AuthResponse {
   message?: string;
 }
 
+
 export const authService = {
   // Login
   postLogin: async (credentials: LoginCredentials): Promise<AuthResponse> => {

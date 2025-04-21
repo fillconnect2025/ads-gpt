@@ -1,6 +1,6 @@
 import { IUser } from '@/@types/user.type';
 import { toast } from '@/hooks/use-toast';
-import { supabase, SupabaseUser } from '@/services/supabaseClient';
+import { supabase } from '@/utils/supabase';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 // Define user type
@@ -77,7 +77,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         const { data } = await supabase.auth.getSession();
 
         if (data.session?.user) {
-          const supabaseUser = data.session.user as SupabaseUser;
+          const supabaseUser = data.session.user as IUser;
           setUser(supabaseUser);
         }
       } catch (error) {
@@ -93,7 +93,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (session?.user) {
-          const supabaseUser = session.user as SupabaseUser;
+          const supabaseUser = session.user as IUser;
           setUser(supabaseUser);
         } else {
           setUser(null);

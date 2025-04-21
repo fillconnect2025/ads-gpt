@@ -15,7 +15,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 
-const Onboarding = () => {
+const DialogOnboarding = () => {
   const {
     open,
     steps,
@@ -89,4 +89,4 @@ const Onboarding = () => {
   );
 };
 
-export default Onboarding;
+export default DialogOnboarding;

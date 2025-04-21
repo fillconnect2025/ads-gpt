@@ -4,8 +4,8 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import DialogOnboarding from './components/dialog/Onboarding';
 import Layout from './components/layout/Layout';
-import Onboarding from './components/Onboarding';
 import PrivateRoute from './components/PrivateRoute';
 import WhatsAppSupport from './components/WhatsAppSupport';
 import { AuthProvider } from './context/AuthContext';
@@ -54,7 +54,7 @@ const App = () => {
                     element={
                       <PrivateRoute>
                         <Layout />
-                        <Onboarding />
+                        <DialogOnboarding />
                         <WhatsAppSupport phoneNumber="5511999999999" />
                       </PrivateRoute>
                     }

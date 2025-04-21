@@ -1,4 +1,5 @@
 import { useAuth } from '@/context/AuthContext';
+import { FacebookAdsAuthProvider } from '@/context/FacebookADSContext';
 import { Loader2 } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
 
@@ -21,18 +22,7 @@ const PrivateRoute = ({ children }: PrivateRouteProps) => {
     return <Navigate to="/login" />;
   }
 
-  return <>{children}</>;
+  return <FacebookAdsAuthProvider>{children}</FacebookAdsAuthProvider>;
 };
 
 export default PrivateRoute;
-
-
-// const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
-//   const isAuthenticated = localStorage.getItem('user') !== null;
-
-//   if (!isAuthenticated) {
-//     return <Navigate to="/login" replace />;
-//   }
-
-//   return <>{children}</>;
-// };

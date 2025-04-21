@@ -1,3 +1,6 @@
+import TabNotifications from '@/components/profile/TabNotifications';
+import TabProfile from '@/components/profile/TabPersonal';
+import TabSecurity from '@/components/profile/TabSecurity';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,9 +12,6 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import TabNotifications from '@/components/userProfile/TabNotifications';
-import TabProfile from '@/components/userProfile/TabPersonal';
-import TabSecurity from '@/components/userProfile/TabSecurity';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Bell, Camera, Lock, LogOut, Users } from 'lucide-react';

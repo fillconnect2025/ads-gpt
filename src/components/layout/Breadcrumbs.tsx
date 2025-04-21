@@ -50,7 +50,7 @@ export function Breadcrumbs() {
           const name = routeNameMap[path] || path;
 
           return (
-            <span key={path} data-lov-id={`breadcrumb-${path}`}>
+            <span key={path} data-lov-id={`breadcrumb-${path}`} className="flex gap-2 items-center">
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 {isLast ? (
