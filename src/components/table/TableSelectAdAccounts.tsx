@@ -1,21 +1,18 @@
+
 import { Button } from '@/components/ui/button';
 import { useAdAccountsTable } from '@/hooks/tabs/useAdAccountsTable';
 import { formatDateBr } from '@/utils/format';
-import { Loader2, Search, Usb } from 'lucide-react';
+import { Loader2, Search } from 'lucide-react';
 import { Input } from '../ui/input';
 
 const TableSelectAdAccounts = () => {
   const {
     getStatusBadge,
     unselectAllAdAccounts,
-    handleSelectAll,
     toggleAccountSelection,
     fetchPutAdAccounts,
-
     adAccounts,
-    checkboxRef,
     selectedAccounts,
-    allSelected,
     isLoadingSelectAdAccounts,
     isFetchPutAdAccounts,
     searchTerm,
@@ -75,20 +72,15 @@ const TableSelectAdAccounts = () => {
           adAccounts.map((account) => (
             <div
               key={account.id}
-              onClick={() => toggleAccountSelection(account.id)}
+              onClick={() => toggleAccountSelection(account.id || '')}
               className={`rounded-xl border p-4 shadow-sm transition-all hover:bg-muted/90 ${
-                selectedAccounts.includes(account.id)
+                selectedAccounts.includes(account.id || '')
                   ? 'bg-muted/90'
                   : 'bg-white'
               }`}
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  {/* <Checkbox
-                    checked={selectedAccounts.includes(account.id)}
-                    onCheckedChange={() => toggleAccountSelection(account.id)}
-                    aria-label={`Selecionar conta ${account.name}`}
-                  /> */}
                   <div>
                     <div className="font-medium text-base">{account.name}</div>
                     <div className="text-xs text-muted-foreground">
@@ -129,7 +121,7 @@ const TableSelectAdAccounts = () => {
           {isFetchPutAdAccounts ? (
             <Loader2 className="h-3.5 w-3.5" />
           ) : (
-            <Usb className="h-3.5 w-3.5" />
+            <Loader2 className="h-3.5 w-3.5" />
           )}
           {isFetchPutAdAccounts ? ' Conectando...' : 'Conectar'}
         </Button>
