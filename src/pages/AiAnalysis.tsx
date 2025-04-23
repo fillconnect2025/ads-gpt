@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { useAuthContext } from '@/context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,7 +16,7 @@ import { generateMockMetrics, generateMockInsights, generateAnalysisScore } from
 import { supabase } from '@/utils/supabase';
 
 const AiAnalysis: React.FC = () => {
-  const { user } = useAuthContext();
+  const { user } = useAuth();
   const userId = user?.id || '';
   const { toast } = useToast();
   const [isNewAnalysisOpen, setIsNewAnalysisOpen] = useState(false);
@@ -36,7 +35,6 @@ const AiAnalysis: React.FC = () => {
     refetchAnalyses
   } = useAiAnalysis({ userId });
 
-  // Define campaign objectives
   const campaignObjectives: ICampaignObjective[] = [
     { value: 'conversao', label: 'Conversão' },
     { value: 'leads', label: 'Geração de Leads' },
@@ -46,20 +44,14 @@ const AiAnalysis: React.FC = () => {
     { value: 'outro', label: 'Outro' },
   ];
 
-  // Mock data setup - in a real application, this would come from the backend
   useEffect(() => {
-    // This is just for demonstration purposes
-    // In a real app, this would be handled by the backend
     const setupMockData = async () => {
       try {
-        // Check if we already have the table
         const { error: checkError } = await supabase.from('ads_analysis').select('id').limit(1);
         
         if (checkError && checkError.code === '42P01') {
           console.log('Setting up mock data for demonstration');
           
-          // In a real app, we'd create proper tables via migrations
-          // This is just for demo purposes
           const mockAnalysis = {
             id: 'mock-analysis-1',
             user_id: userId,
@@ -75,8 +67,6 @@ const AiAnalysis: React.FC = () => {
             updated_at: new Date().toISOString(),
             score: generateAnalysisScore()
           };
-          
-          // In a real app, this would be done through proper migrations
         }
       } catch (error) {
         console.error('Error setting up mock data:', error);
@@ -200,7 +190,6 @@ const AiAnalysis: React.FC = () => {
         </TabsContent>
       </Tabs>
 
-      {/* New Analysis Sheet */}
       <Sheet open={isNewAnalysisOpen} onOpenChange={setIsNewAnalysisOpen}>
         <SheetContent className="sm:max-w-md md:max-w-xl">
           <SheetHeader>

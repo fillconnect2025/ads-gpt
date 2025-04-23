@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -78,6 +77,18 @@ const AnalysisForm = ({ onSubmit, isSubmitting, objectives }: AnalysisFormProps)
 
   const dataSource = form.watch("data_source");
 
+  const handleFormSubmit = (data: z.infer<typeof formSchema>) => {
+    const formData: IAiAnalysisFormData = {
+      campaign_name: data.campaign_name,
+      start_date: data.start_date,
+      end_date: data.end_date,
+      objective: data.objective,
+      data_source: data.data_source,
+      file: data.file,
+    };
+    onSubmit(formData);
+  };
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -88,7 +99,7 @@ const AnalysisForm = ({ onSubmit, isSubmitting, objectives }: AnalysisFormProps)
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form id="analysis-form" onSubmit={form.handleSubmit((data) => onSubmit(data))} className="space-y-6">
+          <form id="analysis-form" onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
             <FormField
               control={form.control}
               name="campaign_name"
