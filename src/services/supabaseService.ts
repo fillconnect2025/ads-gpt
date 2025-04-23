@@ -117,4 +117,34 @@ export const supabaseServiceFacebookAds = {
       };
     }
   },
+
+  updateFacebookAdAccountsStatus: async (
+    ids: string[]
+  ): Promise<IProfileResponse<IModelFacebookAdAccounts[]>> => {
+    try {
+      const { data, error } = await supabase
+        .from('fb_ad_accounts')
+        .update({ is_active: true })
+        .in('id', ids)
+        .select();
+
+      if (error) {
+        return {
+          success: false,
+          message: error.message,
+        };
+      }
+
+      return {
+        success: true,
+        data,
+      };
+    } catch (error: any) {
+      console.error('Error updating account statuses:', error);
+      return {
+        success: false,
+        message: 'Failed to update account statuses',
+      };
+    }
+  },
 };

@@ -18,7 +18,7 @@ export interface IModelFacebookAdAccounts {
   id?: string;
   name: string;
   account_id: number;
-  is_active: boolean;
+  is_active?: boolean;
   account_status: number;
   updated_at: Date; 
   integration_id: string;

@@ -120,7 +120,7 @@ export const facebookAdsService = {
       };
     }
   },
-
+  
   // Inicializa o SDK do Facebook no navegador
   initFacebookSdk: (): Promise<void> => {
     return new Promise<void>((resolve) => {

@@ -9,6 +9,7 @@ interface FacebookAdsType {
   handleConnectFacebookAds: () => void;
   fetchGetAllIntegration: () => void;
   fetchGetAdAccounts: (integrationId: string) => void;
+  fetchPutAdAccounts: (ids: string[]) => void;
 
   integrations: IModelIntegration[] | [];
   adAccounts: IModelFacebookAdAccounts[] | [];
@@ -16,6 +17,7 @@ interface FacebookAdsType {
   isConnectingFacebookAds: boolean;
   isLoadingIntegration: boolean;
   isLoadingSelectAdAccounts: boolean;
+  isFetchPutAdAccounts: boolean;
 }
 
 const FacebookAdsContext = createContext<FacebookAdsType | undefined>(
@@ -37,6 +39,7 @@ export const FacebookAdsAuthProvider: React.FC<{
   const [isLoadingSelectAdAccounts, setIsLoadingSelectAdAccounts] =
     useState(false);
   const [isConnectingFacebookAds, setIsConnectingFacebookAds] = useState(false);
+  const [isFetchPutAdAccounts, setIsFetchPutAdAccounts] = useState(false);
 
   useEffect(() => {
     if (!facebookAdsService.validateAppId(FB_APP_ID)) {
@@ -150,7 +153,6 @@ export const FacebookAdsAuthProvider: React.FC<{
       const adAccountsData = resultMeAdAccounts.data.map((adAccounts) => ({
         name: adAccounts.name,
         account_id: adAccounts.account_id,
-        is_active: false,
         account_status: adAccounts.account_status,
         updated_at: new Date(),
         integration_id: integrationId,
@@ -164,7 +166,7 @@ export const FacebookAdsAuthProvider: React.FC<{
       }));
 
       const { data, success, message } =
-      await supabaseServiceFacebookAds.saveFacebookAdAccounts(adAccountsData);
+        await supabaseServiceFacebookAds.saveFacebookAdAccounts(adAccountsData);
 
       if (!success) {
         toast({
@@ -189,6 +191,37 @@ export const FacebookAdsAuthProvider: React.FC<{
     }
   };
 
+  const fetchPutAdAccounts = async (ids: string[]) => {
+    setIsFetchPutAdAccounts(true);
+    try {
+      const { success, message } =
+        await supabaseServiceFacebookAds.updateFacebookAdAccountsStatus(
+          ids
+        );
+
+      toast({
+        title: success
+          ? 'Conexão realizada com sucesso!'
+          : 'Não foi possível completar a conexão',
+        description: success
+          ? 'As contas de anúncios foram sincronizadas com sucesso.'
+          : message || 'Tente novamente mais tarde ou verifique sua conexão.',
+        variant: success ? 'default' : 'destructive',
+      });
+    } catch (error: any) {
+      console.log('error ', error);
+      return {
+        success: false,
+        title: 'Erro ao solicitar',
+        description:
+          error.message ||
+          'Verifique sua conexão ou tente novamente mais tarde',
+      };
+    } finally {
+      setIsFetchPutAdAccounts(false);
+    }
+  };
+
   return (
     <FacebookAdsContext.Provider
       value={{
@@ -196,6 +229,7 @@ export const FacebookAdsAuthProvider: React.FC<{
         handleConnectFacebookAds,
         fetchGetAllIntegration,
         fetchGetAdAccounts,
+        fetchPutAdAccounts,
 
         //STATES
         adAccounts,
@@ -204,6 +238,7 @@ export const FacebookAdsAuthProvider: React.FC<{
         isLoadingSelectAdAccounts,
         isLoadingIntegration,
         isConnectingFacebookAds,
+        isFetchPutAdAccounts,
       }}
     >
       {children}
