@@ -1,7 +1,8 @@
+
 import * as React from "react"
 import { useState } from "react"
-import { usePathname } from 'next/navigation';
-import { Home, Settings, Users, LayoutDashboard, Plus, CheckCircle, FileText, HelpCircle, GraduationCap, MessageSquare, KanbanSquare, Package, ShoppingCart, ClipboardList, UserPlus, LucideIcon, } from "lucide-react"
+import { useLocation } from 'react-router-dom';
+import { Home, Settings, Users, LayoutDashboard, Plus, CheckCircle, FileText, HelpCircle, GraduationCap, MessageSquare, KanbanSquare, Package, ShoppingCart, ClipboardList, UserPlus, BarChart } from "lucide-react"
 import { useIsMobile } from "@/hooks/use-mobile"
 
 import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger, SidebarHeader, SidebarFooter, SidebarSeparator, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarGroup, SidebarGroupLabel, SidebarMenuSkeleton, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton, SidebarInset, } from "@/components/ui/sidebar"
@@ -10,17 +11,15 @@ import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ModeToggle } from "@/components/mode-toggle"
 import { useToast } from "@/hooks/use-toast"
-import { useRouter } from "next/router"
+import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/context/AuthContext"
-import { RadarChart } from 'lucide-react';
 
 const menuItems = [
   {
     label: "Dashboard",
     icon: <LayoutDashboard className="h-4 w-4" />,
-    href: "/"
+    href: "/dashboard"
   },
   {
     label: "Clientes",
@@ -39,7 +38,7 @@ const menuItems = [
   },
   {
     label: "Análise I.A.",
-    icon: <RadarChart className="h-4 w-4" />,
+    icon: <BarChart className="h-4 w-4" />,
     href: "/analise-ia"
   },
   {
@@ -56,9 +55,10 @@ interface MenuItemProps {
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const { user, logout } = useAuth();
-  const router = useRouter();
-  const pathname = usePathname();
+  const { user, handleLogout } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const pathname = location.pathname;
   const [isLoading, setIsLoading] = React.useState(true)
 
   React.useEffect(() => {
@@ -78,7 +78,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <div className="flex flex-col items-start">
               <span className="text-sm font-medium">{user?.email}</span>
               <span className="text-xs text-muted-foreground">
-                {user?.name || 'Visitante'}
+                {user?.user_metadata?.name || 'Visitante'}
               </span>
             </div>
           </Button>
@@ -98,7 +98,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <>
                 {menuItems.map((item: MenuItemProps) => (
                   <SidebarMenuItem key={item.label}>
-                    <SidebarMenuButton href={item.href} isActive={pathname === item.href}>
+                    <SidebarMenuButton 
+                      onClick={() => navigate(item.href)} 
+                      isActive={pathname === item.href}
+                    >
                       {item.icon}
                       <span>{item.label}</span>
                     </SidebarMenuButton>
@@ -122,7 +125,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => logout(() => router.push('/login'))}>
+              <DropdownMenuItem onClick={() => handleLogout(() => navigate('/login'))}>
                 Sair
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -135,3 +138,4 @@ export function Layout({ children }: { children: React.ReactNode }) {
     </SidebarProvider>
   )
 }
+
