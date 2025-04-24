@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { IAdsAnalysis } from '@/@types/supabase';
+import { IAdsAnalysis, ICampaignMetrics } from '@/@types/supabase';
 import { formatCurrency, formatPercent, getMetricColorClass } from '@/utils/ragHelpers';
 import { BarChart, Download, ThumbsUp, ThumbsDown, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
@@ -92,8 +92,9 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, onSubmitRat
     return isPositive ? 'bg-green-50 border-green-200 text-green-900' : 'bg-red-50 border-red-200 text-red-900';
   };
 
-  // Extract metrics and insights with null checks
-  const { metrics = {}, insights = { strengths: [], weaknesses: [], recommendations: [] } } = analysis;
+  // Extract metrics and insights with null checks and type assertion
+  const metrics: ICampaignMetrics = analysis.metrics as ICampaignMetrics || {};
+  const insights = analysis.insights || { strengths: [], weaknesses: [], recommendations: [] };
   
   return (
     <Card className="w-full">
@@ -124,7 +125,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, onSubmitRat
             <div>
               <h3 className="text-lg font-medium mb-3">Métricas Principais</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {metrics && metrics.ctr !== undefined && (
+                {metrics && typeof metrics.ctr === 'number' && (
                   <MetricCard 
                     title="CTR (Taxa de Cliques)" 
                     value={formatPercent(metrics.ctr)}
@@ -132,7 +133,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, onSubmitRat
                     change="+0.5%"
                   />
                 )}
-                {metrics && metrics.cpc !== undefined && (
+                {metrics && typeof metrics.cpc === 'number' && (
                   <MetricCard 
                     title="CPC (Custo por Clique)" 
                     value={metrics.cpc}
@@ -141,7 +142,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, onSubmitRat
                     change="-0.20"
                   />
                 )}
-                {metrics && metrics.cpm !== undefined && (
+                {metrics && typeof metrics.cpm === 'number' && (
                   <MetricCard 
                     title="CPM (Custo por Mil)" 
                     value={metrics.cpm}
@@ -150,7 +151,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, onSubmitRat
                     change="+1.30"
                   />
                 )}
-                {metrics && metrics.roas !== undefined && (
+                {metrics && typeof metrics.roas === 'number' && (
                   <MetricCard 
                     title="ROAS" 
                     value={metrics.roas}
@@ -160,7 +161,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, onSubmitRat
                     change="+0.3"
                   />
                 )}
-                {metrics && metrics.conversion_rate !== undefined && (
+                {metrics && typeof metrics.conversion_rate === 'number' && (
                   <MetricCard 
                     title="Taxa de Conversão" 
                     value={formatPercent(metrics.conversion_rate)}
@@ -168,7 +169,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, onSubmitRat
                     change="-0.2%"
                   />
                 )}
-                {metrics && metrics.impressions !== undefined && (
+                {metrics && typeof metrics.impressions === 'number' && (
                   <MetricCard 
                     title="Impressões" 
                     value={metrics.impressions.toLocaleString('pt-BR')}
@@ -192,7 +193,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, onSubmitRat
             <div>
               <h3 className="text-lg font-medium mb-3 text-green-700">Pontos Fortes</h3>
               <ul className="space-y-2">
-                {insights.strengths.map((strength, index) => (
+                {insights.strengths && insights.strengths.map((strength, index) => (
                   <li key={`strength-${index}`} className="bg-green-50 border border-green-200 rounded-lg p-3 text-green-800">
                     {strength}
                   </li>
@@ -203,7 +204,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, onSubmitRat
             <div>
               <h3 className="text-lg font-medium mb-3 text-red-700">Pontos Críticos</h3>
               <ul className="space-y-2">
-                {insights.weaknesses.map((weakness, index) => (
+                {insights.weaknesses && insights.weaknesses.map((weakness, index) => (
                   <li key={`weakness-${index}`} className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-800">
                     {weakness}
                   </li>
@@ -272,7 +273,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, onSubmitRat
                 <div className="mt-4 flex justify-between items-center">
                   <div>
                     <span className="text-sm text-gray-500">Orçamento utilizado:</span>
-                    <span className="ml-2 font-medium">{metrics && metrics.spend ? formatCurrency(metrics.spend) : 'N/A'}</span>
+                    <span className="ml-2 font-medium">{metrics && typeof metrics.spend === 'number' ? formatCurrency(metrics.spend) : 'N/A'}</span>
                   </div>
                   <div>
                     <Button variant="outline" size="sm">
