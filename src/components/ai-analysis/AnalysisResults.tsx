@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,30 +7,11 @@ import { IAdsAnalysis, ICampaignMetrics } from '@/@types/supabase';
 import { formatCurrency, formatPercent, getMetricColorClass } from '@/utils/ragHelpers';
 import { BarChart, Download, ThumbsUp, ThumbsDown, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
-import { Badge } from "@/components/ui/badge";
 
 interface AnalysisResultsProps {
   analysis: IAdsAnalysis;
   onSubmitRating: (id: string, rating: number) => void;
 }
-
-const getBadgeStatus = (value: number, metric: string): "success" | "warning" | "danger" => {
-  const thresholds = {
-    ctr: { good: 2, bad: 1 },
-    cpc: { good: 2, bad: 5 },
-    cpm: { good: 15, bad: 30 },
-    roas: { good: 3, bad: 1.5 },
-    conversion_rate: { good: 3, bad: 1 }
-  };
-  
-  const threshold = thresholds[metric as keyof typeof thresholds];
-  if (!threshold) return "warning";
-  
-  return value >= threshold.good ? "success" : 
-         value <= threshold.bad ? "danger" : 
-         "warning";
-};
 
 const MetricCard = ({ 
   title, 
@@ -37,8 +19,7 @@ const MetricCard = ({
   change, 
   positive,
   prefix = "",
-  suffix = "",
-  metricName = ""
+  suffix = ""
 }: { 
   title: string; 
   value: string | number;
@@ -46,30 +27,12 @@ const MetricCard = ({
   positive?: boolean;
   prefix?: string;
   suffix?: string;
-  metricName?: string;
 }) => {
   const ChangeIcon = positive ? ArrowUpRight : ArrowDownRight;
-  const status = typeof value === 'number' ? getBadgeStatus(value, metricName) : 'warning';
   
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-4">
-      <div className="flex justify-between items-center mb-1">
-        <div className="text-sm text-gray-500 dark:text-gray-400">{title}</div>
-        <Badge
-          variant="outline"
-          className={cn(
-            "ml-2",
-            status === "success" && "border-green-500 text-green-700 bg-green-50",
-            status === "warning" && "border-yellow-500 text-yellow-700 bg-yellow-50",
-            status === "danger" && "border-red-500 text-red-700 bg-red-50"
-          )}
-        >
-          {status === "success" ? "Acima da média" : 
-           status === "danger" ? "Abaixo do esperado" : 
-           "Na média"}
-        </Badge>
-      </div>
-      
+      <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">{title}</div>
       <div className="flex justify-between items-center">
         <div className={cn(
           "text-xl font-semibold",
@@ -107,6 +70,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, onSubmitRat
     onSubmitRating(analysis.id, rating);
   };
   
+  // Helper to determine if a metric should be displayed as positive or negative
   const isMetricPositive = (name: string, value: number): boolean => {
     switch (name) {
       case 'cpc':
@@ -123,22 +87,13 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, onSubmitRat
     }
   };
   
+  // Helper function to get color classes based on value
   const getColorClass = (isPositive: boolean): string => {
     return isPositive ? 'bg-green-50 border-green-200 text-green-900' : 'bg-red-50 border-red-200 text-red-900';
   };
 
-  const defaultMetrics: ICampaignMetrics = {
-    impressions: 0,
-    reach: 0,
-    clicks: 0,
-    ctr: 0,
-    cpc: 0,
-    cpm: 0,
-    spend: 0,
-    frequency: 0
-  };
-  
-  const metrics: ICampaignMetrics = analysis.metrics ? analysis.metrics as ICampaignMetrics : defaultMetrics;
+  // Extract metrics and insights with null checks and type assertion
+  const metrics: ICampaignMetrics = analysis.metrics as ICampaignMetrics || {};
   const insights = analysis.insights || { strengths: [], weaknesses: [], recommendations: [] };
   
   return (
@@ -176,7 +131,6 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, onSubmitRat
                     value={formatPercent(metrics.ctr)}
                     positive={isMetricPositive('ctr', metrics.ctr)}
                     change="+0.5%"
-                    metricName="ctr"
                   />
                 )}
                 {metrics && typeof metrics.cpc === 'number' && (
@@ -366,5 +320,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, onSubmitRat
     </Card>
   );
 };
+
+import { cn } from '@/lib/utils';
 
 export default AnalysisResults;

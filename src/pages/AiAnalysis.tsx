@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from "@/components/ui/button";
@@ -53,13 +54,7 @@ const AiAnalysis: React.FC = () => {
     { id: 'actions_applied', label: 'Ações aplicadas', completed: false },
     { id: 'shared_team', label: 'Compartilhado com equipe', completed: false },
   ]);
-  const [aiMessages, setAiMessages] = useState([
-    "Iniciando análise de campanha...",
-    "Avaliando CTR e CPC...",
-    "Detectando gargalos por público e criativo...",
-    "Gerando insights personalizados..."
-  ]);
-
+  
   const { 
     analysisList,
     selectedAnalysis,
@@ -127,6 +122,7 @@ const AiAnalysis: React.FC = () => {
   }, [userId]);
 
   useEffect(() => {
+    // Update checklist when analysis is selected or status changes
     if (selectedAnalysis) {
       setChecklistItems(prev => prev.map(item => {
         if (item.id === 'analysis_started') {
@@ -156,9 +152,11 @@ const AiAnalysis: React.FC = () => {
       description: "Sua análise de campanha foi iniciada. Você será notificado quando estiver pronta."
     });
     
+    // Consume token for new analysis
     consumeToken();
     trackTokenUsage('analysis');
 
+    // Update checklist
     setChecklistItems(prev => prev.map(item => 
       item.id === 'analysis_started' ? { ...item, completed: true } : item
     ));
@@ -179,16 +177,19 @@ const AiAnalysis: React.FC = () => {
       description: "Seu relatório está sendo gerado e será baixado em breve."
     });
     
+    // Consume tokens
     consumeToken();
     consumeToken();
     trackTokenUsage('report', selectedAnalysis?.id);
     
+    // Mock PDF download - in production this would connect to a real PDF generator
     setTimeout(() => {
       toast({
         title: "PDF Gerado",
         description: "Seu relatório foi gerado com sucesso."
       });
 
+      // Update checklist for report viewed
       setChecklistItems(prev => prev.map(item => 
         item.id === 'report_viewed' ? { ...item, completed: true } : item
       ));
@@ -210,16 +211,19 @@ const AiAnalysis: React.FC = () => {
       description: "Nossa IA está simulando resultados futuros com base nos dados atuais..."
     });
     
+    // Consume tokens
     for (let i = 0; i < 5; i++) {
       consumeToken();
     }
     
+    // Mock simulation - in production would call an AI endpoint
     setTimeout(() => {
       toast({
         title: "Simulação concluída",
         description: "Resultados de simulação disponíveis para visualização."
       });
       
+      // Update checklist for actions applied
       setChecklistItems(prev => prev.map(item => 
         item.id === 'actions_applied' ? { ...item, completed: true } : item
       ));
@@ -241,10 +245,12 @@ const AiAnalysis: React.FC = () => {
       description: "Comparando sua campanha com benchmarks do setor..."
     });
     
+    // Consume tokens
     for (let i = 0; i < 4; i++) {
       consumeToken();
     }
     
+    // Mock benchmark - in production would fetch real benchmark data
     setTimeout(() => {
       toast({
         title: "Benchmark concluído",
@@ -259,6 +265,7 @@ const AiAnalysis: React.FC = () => {
       description: `O insight da categoria ${category} foi aplicado com sucesso.`
     });
     
+    // Update checklist for actions applied
     setChecklistItems(prev => prev.map(item => 
       item.id === 'actions_applied' ? { ...item, completed: true } : item
     ));
@@ -334,8 +341,18 @@ const AiAnalysis: React.FC = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="history">Histórico</TabsTrigger>
-          <TabsTrigger value="analysis">Análise Atual</TabsTrigger>
-          <TabsTrigger value="insights">Insights Estratégicos</TabsTrigger>
+          <TabsTrigger 
+            value="analysis" 
+            disabled={!selectedAnalysis}
+          >
+            Análise Atual
+          </TabsTrigger>
+          <TabsTrigger 
+            value="insights" 
+            disabled={!selectedAnalysis || selectedAnalysis.status !== 'completed'}
+          >
+            Insights Estratégicos
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="history" className="mt-6">
@@ -360,7 +377,7 @@ const AiAnalysis: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="analysis" className="mt-6">
-          {selectedAnalysis ? (
+          {selectedAnalysis && (
             <div className="relative">
               <Button 
                 variant="ghost" 
@@ -465,6 +482,7 @@ const AiAnalysis: React.FC = () => {
                     </Card>
                   </div>
                   
+                  {/* Education and Gamification */}
                   <EducationGamification 
                     analysisScore={selectedAnalysis.score}
                     analysisStatus={selectedAnalysis.status}
@@ -505,25 +523,6 @@ const AiAnalysis: React.FC = () => {
                 </div>
               )}
             </div>
-          ) : (
-            <Card>
-              <CardContent className="pt-6">
-                <div className="space-y-4">
-                  {aiMessages.map((message, index) => (
-                    <div key={index} className="flex items-start space-x-4 animate-fade-in">
-                      <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center">
-                        <span className="text-white text-sm">IA</span>
-                      </div>
-                      <div className="flex-1">
-                        <div className="bg-muted p-3 rounded-lg">
-                          <p className="text-sm">{message}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
           )}
         </TabsContent>
 
@@ -560,6 +559,7 @@ const AiAnalysis: React.FC = () => {
               </div>
               
               <div className="grid grid-cols-1 gap-4">
+                {/* Creative insights */}
                 {renderInsightCard(
                   "Otimizar Imagens dos Anúncios", 
                   "Imagens com pessoas reais tiveram CTR 27% maior que imagens genéricas ou ilustrações.",
@@ -576,6 +576,7 @@ const AiAnalysis: React.FC = () => {
                   2
                 )}
                 
+                {/* Targeting insights */}
                 {renderInsightCard(
                   "Refinar Segmentação por Faixa Etária", 
                   "O público de 25-34 anos tem custo por conversão 40% menor que outros segmentos.",
@@ -584,6 +585,7 @@ const AiAnalysis: React.FC = () => {
                   2
                 )}
                 
+                {/* Budget insights */}
                 {renderInsightCard(
                   "Redistribuir Orçamento por Horário", 
                   "Concentrar 60% do orçamento entre 19h e 22h pode maximizar conversões.",
@@ -592,6 +594,7 @@ const AiAnalysis: React.FC = () => {
                   3
                 )}
                 
+                {/* Platform insights */}
                 {renderInsightCard(
                   "Priorizar Anúncios em Instagram Stories", 
                   "Este formato tem desempenho 35% melhor que feed para seu tipo de produto.",
@@ -600,6 +603,7 @@ const AiAnalysis: React.FC = () => {
                   2
                 )}
                 
+                {/* Competition insights */}
                 {renderInsightCard(
                   "Diferenciação da Proposta de Valor", 
                   "Enfatizar garantia de devolução e entrega rápida nos anúncios.",
@@ -651,6 +655,7 @@ const AiAnalysis: React.FC = () => {
         </SheetContent>
       </Sheet>
 
+      {/* AI Chat Support */}
       {isChatOpen && (
         <AiChatSupport 
           analysisId={selectedAnalysis?.id}
