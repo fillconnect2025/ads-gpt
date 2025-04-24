@@ -54,9 +54,14 @@ const App = () => {
                   <Route
                     element={
                       <PrivateRoute>
-                        <Layout />
-                        <DialogOnboarding />
-                        <WhatsAppSupport phoneNumber="5511999999999" />
+                        <>
+                          <Layout>
+                            <>
+                              <DialogOnboarding />
+                              <WhatsAppSupport phoneNumber="5511999999999" />
+                            </>
+                          </Layout>
+                        </>
                       </PrivateRoute>
                     }
                   >

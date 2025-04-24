@@ -1,7 +1,7 @@
 
 import * as React from "react"
 import { useState } from "react"
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Home, Settings, Users, LayoutDashboard, Plus, CheckCircle, FileText, HelpCircle, GraduationCap, MessageSquare, KanbanSquare, Package, ShoppingCart, ClipboardList, UserPlus, BarChart } from "lucide-react"
 import { useIsMobile } from "@/hooks/use-mobile"
 
@@ -12,7 +12,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
-import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/context/AuthContext"
 
 const menuItems = [
@@ -65,6 +64,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
     // Simulate a delay for loading.
     setTimeout(() => setIsLoading(false), 1000)
   }, [])
+
+  const handleLogoutAndNavigate = () => {
+    handleLogout();
+    navigate('/login');
+  };
 
   return (
     <SidebarProvider>
@@ -125,7 +129,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => handleLogout(() => navigate('/login'))}>
+              <DropdownMenuItem onClick={handleLogoutAndNavigate}>
                 Sair
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -138,4 +142,3 @@ export function Layout({ children }: { children: React.ReactNode }) {
     </SidebarProvider>
   )
 }
-
