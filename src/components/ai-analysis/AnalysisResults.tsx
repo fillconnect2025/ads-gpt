@@ -93,7 +93,20 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, onSubmitRat
   };
 
   // Extract metrics and insights with null checks and type assertion
-  const metrics: ICampaignMetrics = analysis.metrics as ICampaignMetrics || {};
+  // Create a default empty metrics object that matches the ICampaignMetrics interface
+  const defaultMetrics: ICampaignMetrics = {
+    impressions: 0,
+    reach: 0,
+    clicks: 0,
+    ctr: 0,
+    cpc: 0,
+    cpm: 0,
+    spend: 0,
+    frequency: 0
+  };
+  
+  // Use the default metrics if analysis.metrics is empty or undefined
+  const metrics: ICampaignMetrics = analysis.metrics ? analysis.metrics as ICampaignMetrics : defaultMetrics;
   const insights = analysis.insights || { strengths: [], weaknesses: [], recommendations: [] };
   
   return (
