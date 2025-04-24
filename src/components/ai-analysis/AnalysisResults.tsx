@@ -124,7 +124,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, onSubmitRat
             <div>
               <h3 className="text-lg font-medium mb-3">Métricas Principais</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {metrics.ctr !== undefined && (
+                {metrics && metrics.ctr !== undefined && (
                   <MetricCard 
                     title="CTR (Taxa de Cliques)" 
                     value={formatPercent(metrics.ctr)}
@@ -132,7 +132,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, onSubmitRat
                     change="+0.5%"
                   />
                 )}
-                {metrics.cpc !== undefined && (
+                {metrics && metrics.cpc !== undefined && (
                   <MetricCard 
                     title="CPC (Custo por Clique)" 
                     value={metrics.cpc}
@@ -141,7 +141,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, onSubmitRat
                     change="-0.20"
                   />
                 )}
-                {metrics.cpm !== undefined && (
+                {metrics && metrics.cpm !== undefined && (
                   <MetricCard 
                     title="CPM (Custo por Mil)" 
                     value={metrics.cpm}
@@ -150,7 +150,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, onSubmitRat
                     change="+1.30"
                   />
                 )}
-                {metrics.roas !== undefined && (
+                {metrics && metrics.roas !== undefined && (
                   <MetricCard 
                     title="ROAS" 
                     value={metrics.roas}
@@ -160,7 +160,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, onSubmitRat
                     change="+0.3"
                   />
                 )}
-                {metrics.conversion_rate !== undefined && (
+                {metrics && metrics.conversion_rate !== undefined && (
                   <MetricCard 
                     title="Taxa de Conversão" 
                     value={formatPercent(metrics.conversion_rate)}
@@ -168,7 +168,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, onSubmitRat
                     change="-0.2%"
                   />
                 )}
-                {metrics.impressions !== undefined && (
+                {metrics && metrics.impressions !== undefined && (
                   <MetricCard 
                     title="Impressões" 
                     value={metrics.impressions.toLocaleString('pt-BR')}
@@ -254,7 +254,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, onSubmitRat
                     </li>
                   ))
                 ) : (
-                  insights.recommendations.map((rec, index) => (
+                  insights.recommendations && insights.recommendations.map((rec, index) => (
                     <li key={`rec-${index}`} className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-blue-800">
                       {rec.title}: {rec.description}
                     </li>
@@ -272,7 +272,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, onSubmitRat
                 <div className="mt-4 flex justify-between items-center">
                   <div>
                     <span className="text-sm text-gray-500">Orçamento utilizado:</span>
-                    <span className="ml-2 font-medium">{metrics.spend ? formatCurrency(metrics.spend) : 'N/A'}</span>
+                    <span className="ml-2 font-medium">{metrics && metrics.spend ? formatCurrency(metrics.spend) : 'N/A'}</span>
                   </div>
                   <div>
                     <Button variant="outline" size="sm">

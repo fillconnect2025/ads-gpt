@@ -44,7 +44,7 @@ class AnalysisService {
       return {
         success: false,
         data: null,
-        message: error instanceof Error ? error.message : 'Failed to fetch analysis'
+        message: error instanceof Error ? error.message : 'Failed to fetch analyses'
       };
     }
   }
