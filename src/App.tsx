@@ -66,6 +66,10 @@ const App = () => {
                       element={<AiAnalysis />}
                     />
                     <Route
+                      path="/analise-ia"
+                      element={<AiAnalysis />}
+                    />
+                    <Route
                       path="/campaign-analysis"
                       element={<CampaignAnalysis />}
                     />
