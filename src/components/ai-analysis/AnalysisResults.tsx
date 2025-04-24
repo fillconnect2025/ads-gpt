@@ -92,8 +92,8 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, onSubmitRat
     return isPositive ? 'bg-green-50 border-green-200 text-green-900' : 'bg-red-50 border-red-200 text-red-900';
   };
 
-  // Extract metrics
-  const { metrics, insights } = analysis;
+  // Extract metrics and insights with null checks
+  const { metrics = {}, insights = { strengths: [], weaknesses: [], recommendations: [] } } = analysis;
   
   return (
     <Card className="w-full">
@@ -124,27 +124,33 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, onSubmitRat
             <div>
               <h3 className="text-lg font-medium mb-3">Métricas Principais</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                <MetricCard 
-                  title="CTR (Taxa de Cliques)" 
-                  value={formatPercent(metrics.ctr)}
-                  positive={isMetricPositive('ctr', metrics.ctr)}
-                  change="+0.5%"
-                />
-                <MetricCard 
-                  title="CPC (Custo por Clique)" 
-                  value={metrics.cpc}
-                  prefix="R$ "
-                  positive={isMetricPositive('cpc', metrics.cpc)}
-                  change="-0.20"
-                />
-                <MetricCard 
-                  title="CPM (Custo por Mil)" 
-                  value={metrics.cpm}
-                  prefix="R$ "
-                  positive={isMetricPositive('cpm', metrics.cpm)}
-                  change="+1.30"
-                />
-                {metrics.roas && (
+                {metrics.ctr !== undefined && (
+                  <MetricCard 
+                    title="CTR (Taxa de Cliques)" 
+                    value={formatPercent(metrics.ctr)}
+                    positive={isMetricPositive('ctr', metrics.ctr)}
+                    change="+0.5%"
+                  />
+                )}
+                {metrics.cpc !== undefined && (
+                  <MetricCard 
+                    title="CPC (Custo por Clique)" 
+                    value={metrics.cpc}
+                    prefix="R$ "
+                    positive={isMetricPositive('cpc', metrics.cpc)}
+                    change="-0.20"
+                  />
+                )}
+                {metrics.cpm !== undefined && (
+                  <MetricCard 
+                    title="CPM (Custo por Mil)" 
+                    value={metrics.cpm}
+                    prefix="R$ "
+                    positive={isMetricPositive('cpm', metrics.cpm)}
+                    change="+1.30"
+                  />
+                )}
+                {metrics.roas !== undefined && (
                   <MetricCard 
                     title="ROAS" 
                     value={metrics.roas}
@@ -154,7 +160,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, onSubmitRat
                     change="+0.3"
                   />
                 )}
-                {metrics.conversion_rate && (
+                {metrics.conversion_rate !== undefined && (
                   <MetricCard 
                     title="Taxa de Conversão" 
                     value={formatPercent(metrics.conversion_rate)}
@@ -162,10 +168,12 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, onSubmitRat
                     change="-0.2%"
                   />
                 )}
-                <MetricCard 
-                  title="Impressões" 
-                  value={metrics.impressions.toLocaleString('pt-BR')}
-                />
+                {metrics.impressions !== undefined && (
+                  <MetricCard 
+                    title="Impressões" 
+                    value={metrics.impressions.toLocaleString('pt-BR')}
+                  />
+                )}
               </div>
             </div>
 
@@ -239,11 +247,19 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, onSubmitRat
             <div>
               <h3 className="text-lg font-medium mb-3">Recomendações Estratégicas</h3>
               <ul className="space-y-2">
-                {insights.strategic_recommendations.map((recommendation, index) => (
-                  <li key={`rec-${index}`} className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-blue-800">
-                    {recommendation}
-                  </li>
-                ))}
+                {insights.strategic_recommendations ? (
+                  insights.strategic_recommendations.map((recommendation, index) => (
+                    <li key={`rec-${index}`} className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-blue-800">
+                      {recommendation}
+                    </li>
+                  ))
+                ) : (
+                  insights.recommendations.map((rec, index) => (
+                    <li key={`rec-${index}`} className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-blue-800">
+                      {rec.title}: {rec.description}
+                    </li>
+                  ))
+                )}
               </ul>
             </div>
             
@@ -256,7 +272,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, onSubmitRat
                 <div className="mt-4 flex justify-between items-center">
                   <div>
                     <span className="text-sm text-gray-500">Orçamento utilizado:</span>
-                    <span className="ml-2 font-medium">{formatCurrency(metrics.spend)}</span>
+                    <span className="ml-2 font-medium">{metrics.spend ? formatCurrency(metrics.spend) : 'N/A'}</span>
                   </div>
                   <div>
                     <Button variant="outline" size="sm">

@@ -1,3 +1,4 @@
+
 export interface IModelIntegration {
   id: string;
   user_id: string;
@@ -37,6 +38,7 @@ export interface IAdsAnalysis {
   objective: string;
   status: 'pending' | 'collecting' | 'processing' | 'evaluating' | 'personalizing' | 'completed';
   score?: number;
+  rating?: number;
   metrics?: {
     impressions: number;
     clicks: number;
@@ -46,6 +48,10 @@ export interface IAdsAnalysis {
     conversions: number;
     cost_per_conversion: number;
     roas: number;
+    cpm?: number;
+    reach?: number;
+    frequency?: number;
+    conversion_rate?: number;
   };
   insights?: {
     strengths: string[];
@@ -57,6 +63,11 @@ export interface IAdsAnalysis {
       impact: string;
       tokens: number;
     }[];
+    benchmark_comparison?: string;
+    audience_analysis?: string;
+    creative_analysis?: string;
+    strategic_recommendations?: string[];
+    budget_impact?: string;
   };
   created_at: string;
   updated_at: string;

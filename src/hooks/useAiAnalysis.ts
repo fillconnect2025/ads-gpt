@@ -5,6 +5,7 @@ import { IAiAnalysisFormData } from '@/@types/integrations.type';
 import { analysisService } from '@/services/analysisService';
 import { simulateAnalysisProcess, generateMockMetrics, generateMockInsights, generateAnalysisScore } from '@/utils/ragHelpers';
 import { useToast } from '@/hooks/use-toast';
+import { generateMockAnalysisList } from '@/utils/mockAnalysis';
 
 interface UseAiAnalysisProps {
   userId: string;

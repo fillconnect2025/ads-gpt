@@ -1,6 +1,7 @@
 import { IAdsAnalysis, ICampaignMetrics, ICampaignInsights } from '@/@types/supabase';
 import { IAiAnalysisFormData } from '@/@types/integrations.type';
 import { supabase } from '@/utils/supabase';
+import { generateMockAnalysis, generateMockAnalysisList } from '@/utils/mockAnalysis';
 
 export interface IAnalysisResponse<T> {
   success: boolean;
