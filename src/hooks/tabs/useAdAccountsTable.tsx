@@ -15,8 +15,8 @@ export const useAdAccountsTable = () => {
     // Initialize selectedAdAccountIds based on adAccounts data
     if (adAccounts && adAccounts.length > 0) {
       const initialSelectedIds = adAccounts
-        .filter((account) => account.is_active)
-        .map((account) => account.id || '');
+        .filter((account: IModelFacebookAdAccounts) => account.is_active)
+        .map((account: IModelFacebookAdAccounts) => account.id || '');
       setSelectedAdAccountIds(initialSelectedIds);
     }
   }, [adAccounts]);
@@ -39,7 +39,7 @@ export const useAdAccountsTable = () => {
     if (adAccounts.length === selectedAdAccountIds.length) {
       setSelectedAdAccountIds([]);
     } else {
-      const allIds = adAccounts.map((account) => account.id || '');
+      const allIds = adAccounts.map((account: IModelFacebookAdAccounts) => account.id || '');
       setSelectedAdAccountIds(allIds);
     }
   };
@@ -74,7 +74,7 @@ export const useAdAccountsTable = () => {
 
   // Filter accounts based on search term
   const filteredAccounts = searchTerm 
-    ? adAccounts.filter(account => 
+    ? adAccounts.filter((account: IModelFacebookAdAccounts) => 
         account.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         account.account_id.toString().includes(searchTerm) ||
         account.business_name.toLowerCase().includes(searchTerm.toLowerCase())
