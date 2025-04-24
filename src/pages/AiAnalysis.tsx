@@ -16,7 +16,10 @@ import {
   BadgePercent, 
   BarChart2, 
   Rocket,
-  Coins
+  Coins,
+  MessageSquare,
+  CheckCircle,
+  Lightbulb
 } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
 import { ICampaignObjective } from '@/@types/integrations.type';
@@ -33,6 +36,8 @@ import { trackTokenUsage } from '@/services/tokenService';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import '../utils/animations.css';
+import AiChatSupport from '@/components/ai-analysis/AiChatSupport';
+import EducationGamification from '@/components/ai-analysis/EducationGamification';
 
 const AiAnalysis: React.FC = () => {
   const { user } = useAuth();
@@ -42,6 +47,13 @@ const AiAnalysis: React.FC = () => {
   const [isNewAnalysisOpen, setIsNewAnalysisOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('history');
   const [selectedInsightCategory, setSelectedInsightCategory] = useState('all');
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [checklistItems, setChecklistItems] = useState([
+    { id: 'analysis_started', label: 'Análise iniciada', completed: false },
+    { id: 'report_viewed', label: 'Relatório lido', completed: false },
+    { id: 'actions_applied', label: 'Ações aplicadas', completed: false },
+    { id: 'shared_team', label: 'Compartilhado com equipe', completed: false },
+  ]);
   
   const { 
     analysisList,
@@ -109,6 +121,21 @@ const AiAnalysis: React.FC = () => {
     }
   }, [userId]);
 
+  useEffect(() => {
+    // Update checklist when analysis is selected or status changes
+    if (selectedAnalysis) {
+      setChecklistItems(prev => prev.map(item => {
+        if (item.id === 'analysis_started') {
+          return { ...item, completed: true };
+        }
+        if (item.id === 'report_viewed' && selectedAnalysis.status === 'completed') {
+          return { ...item, completed: activeTab === 'analysis' || activeTab === 'insights' };
+        }
+        return item;
+      }));
+    }
+  }, [selectedAnalysis, activeTab]);
+
   const handleNewAnalysis = () => {
     setIsNewAnalysisOpen(true);
   };
@@ -128,6 +155,11 @@ const AiAnalysis: React.FC = () => {
     // Consume token for new analysis
     consumeToken();
     trackTokenUsage('analysis');
+
+    // Update checklist
+    setChecklistItems(prev => prev.map(item => 
+      item.id === 'analysis_started' ? { ...item, completed: true } : item
+    ));
   };
   
   const handleExportPDF = () => {
@@ -156,6 +188,11 @@ const AiAnalysis: React.FC = () => {
         title: "PDF Gerado",
         description: "Seu relatório foi gerado com sucesso."
       });
+
+      // Update checklist for report viewed
+      setChecklistItems(prev => prev.map(item => 
+        item.id === 'report_viewed' ? { ...item, completed: true } : item
+      ));
     }, 2000);
   };
   
@@ -185,6 +222,11 @@ const AiAnalysis: React.FC = () => {
         title: "Simulação concluída",
         description: "Resultados de simulação disponíveis para visualização."
       });
+      
+      // Update checklist for actions applied
+      setChecklistItems(prev => prev.map(item => 
+        item.id === 'actions_applied' ? { ...item, completed: true } : item
+      ));
     }, 3000);
   };
   
@@ -216,6 +258,18 @@ const AiAnalysis: React.FC = () => {
       });
     }, 2500);
   };
+
+  const handleApplyInsight = (category: string) => {
+    toast({
+      title: "Insight aplicado",
+      description: `O insight da categoria ${category} foi aplicado com sucesso.`
+    });
+    
+    // Update checklist for actions applied
+    setChecklistItems(prev => prev.map(item => 
+      item.id === 'actions_applied' ? { ...item, completed: true } : item
+    ));
+  };
   
   const renderInsightCard = (title: string, description: string, impact: string, category: string, tokenCost: number = 2) => {
     return (
@@ -243,15 +297,19 @@ const AiAnalysis: React.FC = () => {
           </div>
         </CardContent>
         <CardFooter className="flex justify-between pt-0">
-          <Button size="sm" variant="outline" className="flex items-center gap-2">
+          <Button size="sm" variant="outline" className="flex items-center gap-2" onClick={() => handleSimulateROI()}>
             <Rocket className="h-4 w-4" />
             Simular resultado
             <Badge variant="secondary" className="ml-1">{tokenCost} tokens</Badge>
           </Button>
-          <Button size="sm" variant="secondary">Aplicar</Button>
+          <Button size="sm" variant="secondary" onClick={() => handleApplyInsight(category)}>Aplicar</Button>
         </CardFooter>
       </Card>
     );
+  };
+
+  const toggleChat = () => {
+    setIsChatOpen(!isChatOpen);
   };
 
   return (
@@ -260,10 +318,24 @@ const AiAnalysis: React.FC = () => {
       
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Análise I.A.</h1>
-        <Button onClick={handleNewAnalysis} className="gap-2">
-          <PlusCircle size={16} />
-          Nova Análise
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={toggleChat}
+            className={cn(
+              "rounded-full w-10 h-10",
+              isChatOpen && "bg-purple-100 text-purple-800"
+            )}
+          >
+            <MessageSquare className="h-5 w-5" />
+          </Button>
+          
+          <Button onClick={handleNewAnalysis} className="gap-2">
+            <PlusCircle size={16} />
+            Nova Análise
+          </Button>
+        </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -358,7 +430,7 @@ const AiAnalysis: React.FC = () => {
                   />
                 </div>
               ) : (
-                <div>
+                <div className="space-y-6">
                   <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
                     <div className="flex items-start">
                       <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center mr-4 flex-shrink-0">
@@ -376,7 +448,7 @@ const AiAnalysis: React.FC = () => {
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <Card className="flex flex-col h-full">
                       <CardHeader>
                         <CardTitle className="flex items-center">
@@ -409,6 +481,13 @@ const AiAnalysis: React.FC = () => {
                       </CardContent>
                     </Card>
                   </div>
+                  
+                  {/* Education and Gamification */}
+                  <EducationGamification 
+                    analysisScore={selectedAnalysis.score}
+                    analysisStatus={selectedAnalysis.status}
+                    checklistItems={checklistItems}
+                  />
                 
                   <div className="flex mt-6 gap-3 flex-wrap">
                     <Button 
@@ -546,6 +625,16 @@ const AiAnalysis: React.FC = () => {
                   </div>
                 </div>
               </div>
+
+              <div className="flex justify-center mt-8">
+                <Button 
+                  onClick={toggleChat}
+                  className="gap-2 bg-purple-600 hover:bg-purple-700"
+                >
+                  <Lightbulb className="h-4 w-4" />
+                  Obter ajuda da IA para aplicar insights
+                </Button>
+              </div>
             </div>
           )}
         </TabsContent>
@@ -565,6 +654,14 @@ const AiAnalysis: React.FC = () => {
           </div>
         </SheetContent>
       </Sheet>
+
+      {/* AI Chat Support */}
+      {isChatOpen && (
+        <AiChatSupport 
+          analysisId={selectedAnalysis?.id}
+          onClose={toggleChat} 
+        />
+      )}
     </div>
   );
 };
