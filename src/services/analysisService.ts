@@ -1,4 +1,3 @@
-
 import { IAdsAnalysis, ICampaignMetrics, ICampaignInsights } from '@/@types/supabase';
 import { IAiAnalysisFormData } from '@/@types/integrations.type';
 import { supabase } from '@/utils/supabase';
@@ -9,11 +8,50 @@ export interface IAnalysisResponse<T> {
   data?: T;
 }
 
-export const analysisService = {
-  submitAnalysis: async (
+class AnalysisService {
+  async getAnalysisList(userId: string) {
+    try {
+      // For demonstration, using mock data
+      const mockData = generateMockAnalysisList(5);
+      return {
+        success: true,
+        data: mockData,
+        message: 'Analysis list retrieved successfully'
+      };
+    } catch (error) {
+      console.error('Error fetching analysis list:', error);
+      return {
+        success: false,
+        data: null,
+        message: error instanceof Error ? error.message : 'Failed to fetch analyses'
+      };
+    }
+  }
+
+  async getAnalysisById(id: string) {
+    try {
+      // For demonstration, using mock data
+      const mockData = generateMockAnalysis();
+      mockData.id = id;
+      return {
+        success: true,
+        data: mockData,
+        message: 'Analysis retrieved successfully'
+      };
+    } catch (error) {
+      console.error('Error fetching analysis:', error);
+      return {
+        success: false,
+        data: null,
+        message: error instanceof Error ? error.message : 'Failed to fetch analysis'
+      };
+    }
+  }
+
+  async submitAnalysis(
     userId: string,
     formData: IAiAnalysisFormData
-  ): Promise<IAnalysisResponse<IAdsAnalysis>> => {
+  ): Promise<IAnalysisResponse<IAdsAnalysis>> {
     try {
       // Step 1: Create the initial analysis record
       const { data, error } = await supabase
@@ -53,72 +91,12 @@ export const analysisService = {
         message: 'Failed to submit analysis',
       };
     }
-  },
+  }
 
-  getAnalysisList: async (
-    userId: string
-  ): Promise<IAnalysisResponse<IAdsAnalysis[]>> => {
-    try {
-      const { data, error } = await supabase
-        .from('ads_analysis')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        return {
-          success: false,
-          message: error.message,
-        };
-      }
-
-      return {
-        success: true,
-        data: data as IAdsAnalysis[],
-      };
-    } catch (error: any) {
-      console.error('Error fetching analysis list:', error);
-      return {
-        success: false,
-        message: 'Failed to fetch analysis list',
-      };
-    }
-  },
-
-  getAnalysisById: async (
-    id: string
-  ): Promise<IAnalysisResponse<IAdsAnalysis>> => {
-    try {
-      const { data, error } = await supabase
-        .from('ads_analysis')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (error) {
-        return {
-          success: false,
-          message: error.message,
-        };
-      }
-
-      return {
-        success: true,
-        data: data as IAdsAnalysis,
-      };
-    } catch (error: any) {
-      console.error('Error fetching analysis:', error);
-      return {
-        success: false,
-        message: 'Failed to fetch analysis',
-      };
-    }
-  },
-
-  updateAnalysisStatus: async (
+  async updateAnalysisStatus(
     id: string,
     status: IAdsAnalysis['status']
-  ): Promise<IAnalysisResponse<void>> => {
+  ): Promise<IAnalysisResponse<void>> {
     try {
       const { error } = await supabase
         .from('ads_analysis')
@@ -145,12 +123,12 @@ export const analysisService = {
         message: 'Failed to update analysis status',
       };
     }
-  },
+  }
 
-  submitRating: async (
+  async submitRating(
     id: string,
     rating: number
-  ): Promise<IAnalysisResponse<void>> => {
+  ): Promise<IAnalysisResponse<void>> {
     try {
       const { error } = await supabase
         .from('ads_analysis')
@@ -177,5 +155,7 @@ export const analysisService = {
         message: 'Failed to submit rating',
       };
     }
-  },
-};
+  }
+}
+
+export const analysisService = new AnalysisService();

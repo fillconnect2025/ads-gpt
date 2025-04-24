@@ -41,7 +41,7 @@ import { Breadcrumbs } from './Breadcrumbs';
 const navItems = [
   { name: 'Painel', path: '/dashboard', icon: LayoutDashboard },
   { name: 'Análise I.A.', path: '/analise-ia', icon: Target },
-  { name: 'Análise de Campanhas', path: '/campaign-analysis', icon: BarChart },
+  { name: 'Desempenho de Campanhas', path: '/campaign-analysis', icon: BarChart },
   { name: 'Relatórios', path: '/reports', icon: FileText },
   { name: 'Integração', path: '/integration', icon: Facebook },
   { name: 'Contas de Anúncios', path: '/ad-accounts', icon: FileSpreadsheet },

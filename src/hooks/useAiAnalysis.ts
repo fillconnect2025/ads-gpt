@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { IAdsAnalysis } from '@/@types/supabase';
@@ -32,6 +31,7 @@ export const useAiAnalysis = ({ userId }: UseAiAnalysisProps) => {
       }
       return response.data || [];
     },
+    initialData: generateMockAnalysisList(), // Add mock data initially
     enabled: !!userId
   });
 

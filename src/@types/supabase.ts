@@ -1,4 +1,3 @@
-
 export interface IModelIntegration {
   id: string;
   user_id: string;
@@ -32,17 +31,35 @@ export interface IAdsAnalysis {
   id: string;
   user_id: string;
   campaign_name: string;
+  platform?: string;
   start_date: string;
   end_date: string;
   objective: string;
-  status: 'collecting' | 'processing' | 'evaluating' | 'personalizing' | 'completed' | 'failed';
-  metrics: ICampaignMetrics;
-  insights: ICampaignInsights;
-  recommendations: string[];
+  status: 'pending' | 'collecting' | 'processing' | 'evaluating' | 'personalizing' | 'completed';
+  score?: number;
+  metrics?: {
+    impressions: number;
+    clicks: number;
+    ctr: number;
+    cpc: number;
+    spend: number;
+    conversions: number;
+    cost_per_conversion: number;
+    roas: number;
+  };
+  insights?: {
+    strengths: string[];
+    weaknesses: string[];
+    recommendations: {
+      category: string;
+      title: string;
+      description: string;
+      impact: string;
+      tokens: number;
+    }[];
+  };
   created_at: string;
   updated_at: string;
-  score: number;
-  rating?: number; // For user feedback (thumbs up/down)
 }
 
 export interface ICampaignMetrics {
