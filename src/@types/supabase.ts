@@ -55,3 +55,52 @@ export interface IModelFacebookCampaignAds {
   campaign_id: string;
   ad_id: string;
 }
+
+export interface IAdsAnalysis {
+  id: string;
+  user_id: string;
+  campaign_name: string;
+  platform?: string;
+  start_date: string;
+  end_date: string;
+  objective: string;
+  status: 'pending' | 'collecting' | 'processing' | 'evaluating' | 'personalizing' | 'completed';
+  score?: number;
+  rating?: number;
+  metrics?: ICampaignMetrics;
+  insights?: ICampaignInsights;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ICampaignMetrics {
+  impressions: number;
+  reach: number;
+  clicks: number;
+  ctr: number;
+  cpc: number;
+  cpm: number;
+  spend: number;
+  conversions?: number;
+  conversion_rate?: number;
+  roas?: number;
+  frequency: number;
+  cost_per_conversion?: number;
+}
+
+export interface ICampaignInsights {
+  strengths: string[];
+  weaknesses: string[];
+  recommendations?: {
+    category: string;
+    title: string;
+    description: string;
+    impact: string;
+    tokens: number;
+  }[];
+  strategic_recommendations?: string[];
+  benchmark_comparison?: string;
+  budget_impact?: string;
+  audience_analysis?: string;
+  creative_analysis?: string;
+}

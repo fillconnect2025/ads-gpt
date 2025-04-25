@@ -312,7 +312,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       if (error) {
         return {
           success: false,
-          variant: 'destructive',
+          variant: 'destructive' as 'destructive',
           title: 'Login failed',
           description: 'Invalid email or password. Please try again.',
         };
@@ -320,6 +320,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       return {
         success: true,
+        variant: 'default' as 'default',
         title: 'Código successful',
         description: 'Email com instruções de recuperação enviado com sucesso!',
       };
@@ -327,6 +328,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       console.error('Password reset request error:', error);
       return {
         success: false,
+        variant: 'destructive' as 'destructive',
         title: 'Erro ao solicitar',
         description: error.message || 'Erro ao solicitar recuperação de senha',
       };

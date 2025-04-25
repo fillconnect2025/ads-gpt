@@ -1,3 +1,4 @@
+
 import { Toaster as Sonner } from '@/components/ui/sonner';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -12,8 +13,8 @@ import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { TokenProvider } from './context/TokenContext';
 import AdAccounts from './pages/AdAccounts';
+import AiAnalysis from './pages/AiAnalysis';
 import CampaignAnalysis from './pages/CampaignAnalysis';
-import CampaignManagement from './pages/CampaignManagement';
 import Dashboard from './pages/Dashboard';
 import Help from './pages/Help';
 import Integration from './pages/Integration';
@@ -61,8 +62,12 @@ const App = () => {
                   >
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route
-                      path="/campaign-management"
-                      element={<CampaignManagement />}
+                      path="/ai-analysis"
+                      element={<AiAnalysis />}
+                    />
+                    <Route
+                      path="/analise-ia"
+                      element={<AiAnalysis />}
                     />
                     <Route
                       path="/campaign-analysis"
