@@ -1,101 +1,86 @@
-
-import { useEffect, useRef, useState } from 'react';
+import { ISelectedAccount } from '@/@types/integrations.type';
 import { useFacebookAds } from '@/context/FacebookADSContext';
-import { Badge } from '@/components/ui/badge';
-import { IModelFacebookAdAccounts } from '@/@types/supabase';
+import { useEffect, useRef, useState } from 'react';
+
 
 export const useAdAccountsTable = () => {
-  const { adAccounts, isLoadingSelectAdAccounts, fetchPutAdAccounts } = useFacebookAds();
-  const [selectedAdAccountIds, setSelectedAdAccountIds] = useState<string[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const checkboxRef = useRef<HTMLInputElement>(null);
-  const [isFetchPutAdAccounts, setIsFetchPutAdAccounts] = useState(false);
-  
-  useEffect(() => {
-    // Initialize selectedAdAccountIds based on adAccounts data
-    if (adAccounts && adAccounts.length > 0) {
-      const initialSelectedIds = adAccounts
-        .filter((account: IModelFacebookAdAccounts) => account.is_active)
-        .map((account: IModelFacebookAdAccounts) => account.id || '');
-      setSelectedAdAccountIds(initialSelectedIds);
-    }
-  }, [adAccounts]);
+  const {
+    adAccounts,
+    isLoadingSelectAdAccounts,
+    fetchPutAdAccountsAdsCampaigns,
+    isFetchPutAdAccounts,
+  } = useFacebookAds();
 
-  const handleAdAccountSelection = (adAccountId: string) => {
-    setSelectedAdAccountIds((prevSelected) => {
-      if (prevSelected.includes(adAccountId)) {
-        return prevSelected.filter((id) => id !== adAccountId);
+  const [selectedAccounts, setSelectedAccounts] = useState<ISelectedAccount[]>(
+    []
+  );
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const checkboxRef = useRef<HTMLDivElement>(null);
+
+  const filteredAdAccounts = adAccounts.filter((account) =>
+    account.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const allSelected =
+    filteredAdAccounts.length > 0 &&
+    filteredAdAccounts.length === adAccounts.length;
+
+  const unselectAllAdAccounts = () => {
+    setSelectedAccounts([]);
+  };
+
+  const selectAllAdAccounts = () => {
+    const allAccounts = filteredAdAccounts.map((account) => ({
+      id: account.id,
+      account_id: account.account_id,
+    }));
+    setSelectedAccounts(allAccounts);
+  };
+
+  const toggleAccountSelection = (account: {
+    id: string;
+    account_id: number;
+  }) => {
+    setSelectedAccounts((prevSelected) => {
+      const exists = prevSelected.some(
+        (a) => a.account_id === account.account_id
+      );
+
+      if (exists) {
+        return prevSelected.filter((a) => a.account_id !== account.account_id);
       } else {
-        return [...prevSelected, adAccountId];
+        return [...prevSelected, account];
       }
     });
   };
 
-  const toggleAccountSelection = (adAccountId: string) => {
-    handleAdAccountSelection(adAccountId);
-  };
+  useEffect(() => {
+    if (adAccounts && adAccounts.length > 0) {
+      const activeAccounts = adAccounts
+        .filter((adAccount) => adAccount?.is_active)
+        .map((adAccount) => ({
+          id: adAccount.id,
+          account_id: adAccount.account_id,
+        }));
 
-  const handleSelectAll = () => {
-    if (adAccounts.length === selectedAdAccountIds.length) {
-      setSelectedAdAccountIds([]);
-    } else {
-      const allIds = adAccounts.map((account: IModelFacebookAdAccounts) => account.id || '');
-      setSelectedAdAccountIds(allIds);
+      setSelectedAccounts(activeAccounts);
     }
-  };
-
-  const unselectAllAdAccounts = () => {
-    setSelectedAdAccountIds([]);
-  };
-
-  const getStatusBadge = (status: number) => {
-    switch (status) {
-      case 1:
-        return <Badge className="bg-green-500">Active</Badge>;
-      case 2:
-        return (
-          <Badge variant="outline" className="text-red-500 border-red-500">
-            Disabled
-          </Badge>
-        );
-      default:
-        return <Badge variant="outline">{`Status: ${status}`}</Badge>;
-    }
-  };
-  
-  const handleFetchPutAdAccounts = async (ids: string[]) => {
-    setIsFetchPutAdAccounts(true);
-    try {
-      await fetchPutAdAccounts(ids);
-    } finally {
-      setIsFetchPutAdAccounts(false);
-    }
-  };
-
-  // Filter accounts based on search term
-  const filteredAccounts = searchTerm 
-    ? adAccounts.filter((account: IModelFacebookAdAccounts) => 
-        account.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        account.account_id.toString().includes(searchTerm) ||
-        account.business_name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : adAccounts;
-
-  const allSelected = adAccounts.length > 0 && selectedAdAccountIds.length === adAccounts.length;
+  }, [adAccounts]);
 
   return {
-    adAccounts: filteredAccounts,
-    isLoadingSelectAdAccounts,
-    selectedAdAccountIds,
-    handleAdAccountSelection,
-    getStatusBadge,
+    // FUNCTION
+    selectAllAdAccounts,
     unselectAllAdAccounts,
-    handleSelectAll,
     toggleAccountSelection,
-    fetchPutAdAccounts: handleFetchPutAdAccounts,
+    fetchPutAdAccountsAdsCampaigns,
+
+    // STATES
+    isLoadingSelectAdAccounts,
     checkboxRef,
-    selectedAccounts: selectedAdAccountIds,
     allSelected,
+    adAccounts: filteredAdAccounts,
+    selectedAccounts,
+    setSelectedAccounts,
     isFetchPutAdAccounts,
     searchTerm,
     setSearchTerm,

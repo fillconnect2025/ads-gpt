@@ -2,6 +2,7 @@ import {
   IFacebookAdsAccessTokenResponse,
   IFacebookAdsAdAccount,
   IFacebookAdsAuthResponse,
+  IFacebookAdsCampaign,
 } from '@/@types/facebook.type';
 import axios from 'axios';
 
@@ -120,7 +121,46 @@ export const facebookAdsService = {
       };
     }
   },
-  
+
+  getAdAccountCampaigns: async (
+    adAccountId: number,
+    accessToken: string
+  ): Promise<IFacebookAdsServiceRequest<IFacebookAdsCampaign[]>> => {
+    try {
+      const { data, status } = await axios.get(
+        `${BASE_URL}/act_${adAccountId}/campaigns`,
+        {
+          params: {
+            access_token: accessToken,
+            fields:
+              'id,account_id,adlabels,bid_strategy,boosted_object_id,brand_lift_studies,budget_rebalance_flag,budget_remaining,buying_type,campaign_group_active_time,can_create_brand_lift_study,can_use_spend_cap,configured_status,created_time,daily_budget,effective_status,has_secondary_skadnetwork_reporting,is_budget_schedule_enabled,is_skadnetwork_attribution,issues_info,last_budget_toggling_time,lifetime_budget,name,objective,pacing_type,primary_attribution,promoted_object,smart_promotion_type,source_campaign,source_campaign_id,special_ad_categories,special_ad_category,special_ad_category_country,spend_cap,start_time,status,stop_time,topline_id,updated_time,ad_studies,adrules_governed,ads,adsets,copies',
+            limit: 100, 
+          },
+        }
+      );
+
+      if (status !== 200) {
+        return {
+          success: false,
+          message: 'Não foi possível buscar campanhas.',
+        };
+      }
+
+      return {
+        success: true,
+        data: data.data,
+      };
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.error?.message ||
+        'Erro desconhecido na requisição';
+      return {
+        success: false,
+        message,
+      };
+    }
+  },
+
   // Inicializa o SDK do Facebook no navegador
   initFacebookSdk: (): Promise<void> => {
     return new Promise<void>((resolve) => {

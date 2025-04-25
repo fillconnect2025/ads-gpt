@@ -105,6 +105,7 @@ export const useIntegration = () => {
     fetchGetAllIntegration();
   }, []);
 
+console.log("integration ", integrations)
   return {
     // FUNCTION
     getStatusBadge,
