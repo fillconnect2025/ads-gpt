@@ -1,5 +1,10 @@
 import { IFacebookAdsAuthResponse } from '@/@types/facebook.type';
-import { IModelFacebookAdAccounts, IModelIntegration } from '@/@types/supabase';
+import {
+  IModelFacebookAdAccounts,
+  IModelFacebookCampaign,
+  IModelFacebookCampaignAds,
+  IModelIntegration,
+} from '@/@types/supabase';
 import { supabase } from '@/utils/supabase';
 
 export interface IProfileResponse<T> {
@@ -8,8 +13,8 @@ export interface IProfileResponse<T> {
   data?: T;
 }
 
-// 🔹 Buscar todas integração e portfólios do usuário
 export const supabaseServiceFacebookAds = {
+  // Buscar todas integração e portfólios do usuário
   getAllIntegration: async (
     userId: string
   ): Promise<IProfileResponse<IModelIntegration[] | []>> => {
@@ -19,7 +24,13 @@ export const supabaseServiceFacebookAds = {
         .select(
           `
         *,
-        fb_ad_accounts (*)
+        fb_ad_accounts (
+          *,
+          fb_campaigns (
+            *,
+            fb_campaign_ads (*)
+          )
+        )
       `
         )
         .eq('user_id', userId);
@@ -119,13 +130,13 @@ export const supabaseServiceFacebookAds = {
   },
 
   updateFacebookAdAccountsStatus: async (
-    ids: string[]
+    accountIds: number[]
   ): Promise<IProfileResponse<IModelFacebookAdAccounts[]>> => {
     try {
       const { data, error } = await supabase
         .from('fb_ad_accounts')
         .update({ is_active: true })
-        .in('id', ids)
+        .in('account_id', accountIds)
         .select();
 
       if (error) {
@@ -144,6 +155,103 @@ export const supabaseServiceFacebookAds = {
       return {
         success: false,
         message: 'Failed to update account statuses',
+      };
+    }
+  },
+
+  // Buscar campanhas e anúncios de um usuário
+  getAllCampaigns: async (
+    userId: string
+  ): Promise<IProfileResponse<FacebookCampaign[] | []>> => {
+    try {
+      const { data, error } = await supabase
+        .from('fb_campaigns')
+        .select(
+          `
+          *,
+          campaign_ads (*)
+        `
+        )
+        .eq('user_id', userId);
+
+      if (error) {
+        return {
+          success: false,
+          message: error.message,
+          data: [],
+        };
+      }
+
+      return {
+        success: true,
+        data,
+      };
+    } catch (error: any) {
+      console.error('Error fetching campaigns data:', error);
+      return {
+        success: false,
+        message: 'Failed to fetch campaigns data',
+        data: [],
+      };
+    }
+  },
+
+  // Salvar ou atualizar campanhas
+  saveFacebookCampaign: async (
+    campaignData: IModelFacebookCampaign[]
+  ): Promise<IProfileResponse<IModelFacebookCampaign[]>> => {
+    try {
+      const { data, error } = await supabase
+        .from('fb_campaigns')
+        .upsert(campaignData, { onConflict: 'campaign_id' })
+        .select();
+
+      if (error) {
+        return {
+          success: false,
+          message: error.message,
+        };
+      }
+
+      return {
+        success: true,
+        data,
+      };
+    } catch (error: any) {
+      console.error('Error saving Facebook campaign:', error);
+      return {
+        success: false,
+        message: 'Failed to save Facebook campaign',
+      };
+    }
+  },
+
+  //  Salvar ou atualizar anúncios vinculados a campanhas
+  saveFacebookCampaignAds: async (
+    adsData: IModelFacebookCampaignAds[]
+  ): Promise<IProfileResponse<IModelFacebookCampaignAds[]>> => {
+    try {
+      const { data, error } = await supabase
+        .from('fb_campaign_ads')
+        .upsert(adsData, { onConflict: 'ad_id' })
+        .select();
+
+      if (error) {
+        return {
+          success: false,
+          message: error.message,
+        };
+      }
+
+      return {
+        success: true,
+        data,
+      };
+    } catch (error: any) {
+      console.error('Error saving Facebook ads:', error);
+      return {
+        success: false,
+        message: 'Failed to save Facebook ads',
       };
     }
   },

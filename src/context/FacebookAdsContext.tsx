@@ -1,3 +1,4 @@
+import { ISelectedAccount } from '@/@types/integrations.type';
 import { IModelFacebookAdAccounts, IModelIntegration } from '@/@types/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { facebookAdsService } from '@/services/facebookAdsService';
@@ -9,7 +10,9 @@ interface FacebookAdsType {
   handleConnectFacebookAds: () => void;
   fetchGetAllIntegration: () => void;
   fetchGetAdAccounts: (integrationId: string) => void;
-  fetchPutAdAccounts: (ids: string[]) => void;
+  fetchPutAdAccountsAdsCampaigns: (
+    selectedAccounts: ISelectedAccount[]
+  ) => void;
 
   integrations: IModelIntegration[] | [];
   adAccounts: IModelFacebookAdAccounts[] | [];
@@ -32,7 +35,7 @@ export const FacebookAdsAuthProvider: React.FC<{
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const [integrations, setIsIntegrations] = useState<IModelIntegration[]>([]);
+  const [integrations, setIntegrations] = useState<IModelIntegration[]>([]);
   const [adAccounts, setAdAccounts] = useState<IModelFacebookAdAccounts[]>([]);
 
   const [isLoadingIntegration, setIsLoadingIntegration] = useState(true);
@@ -125,7 +128,34 @@ export const FacebookAdsAuthProvider: React.FC<{
           variant: 'destructive',
         });
       }
-      setIsIntegrations(data);
+
+      const integrationsWithQtd = data.map((integration) => {
+        let adAccountQtd = 0;
+        let campaignQtd = 0;
+        let adQtd = 0;
+
+        adAccountQtd = integration.fb_ad_accounts?.length || 0;
+
+        integration.fb_ad_accounts?.forEach((adAccount: any) => {
+          const campaigns = adAccount.fb_campaigns || [];
+          campaignQtd += campaigns.length;
+
+          campaigns.forEach((campaign: any) => {
+            adQtd += campaign.fb_campaign_ads?.length || 0;
+          });
+        });
+
+        return {
+          ...integration,
+          qtd: {
+            adAccountQtd,
+            campaignQtd,
+            adQtd,
+          },
+        };
+      });
+
+      setIntegrations(integrationsWithQtd);
     } catch (error: any) {
       return {
         success: false,
@@ -178,7 +208,6 @@ export const FacebookAdsAuthProvider: React.FC<{
 
       setAdAccounts(data);
     } catch (error: any) {
-      console.log('error ', error);
       return {
         success: false,
         title: 'Erro ao solicitar',
@@ -191,25 +220,121 @@ export const FacebookAdsAuthProvider: React.FC<{
     }
   };
 
-  const fetchPutAdAccounts = async (ids: string[]) => {
+  const fetchPutAdAccountsAdsCampaigns = async (
+    selectedAccounts: ISelectedAccount[]
+  ) => {
     setIsFetchPutAdAccounts(true);
     try {
-      const { success, message } =
+      // Atualiza o status das contas de anúncios no Supabase
+      const accountIds = selectedAccounts.map((item) => item.account_id);
+      const { data, success, message } =
         await supabaseServiceFacebookAds.updateFacebookAdAccountsStatus(
-          ids
+          accountIds
         );
 
-      toast({
-        title: success
-          ? 'Conexão realizada com sucesso!'
-          : 'Não foi possível completar a conexão',
-        description: success
-          ? 'As contas de anúncios foram sincronizadas com sucesso.'
-          : message || 'Tente novamente mais tarde ou verifique sua conexão.',
-        variant: success ? 'default' : 'destructive',
-      });
+      if (success) {
+        const accessToken = integrations.find(
+          (integration) => integration.provider === 'facebook'
+        );
+
+        // Obter todas as campanhas para cada conta de anúncio
+        for (const selectedAccount of selectedAccounts) {
+          const campaignRes = await facebookAdsService.getAdAccountCampaigns(
+            selectedAccount.account_id,
+            accessToken.access_token
+          );
+
+          if (!campaignRes.success || !campaignRes.data) {
+            toast({
+              title: 'Erro ao completar a conexão campaignRes',
+              description:
+                campaignRes.message ||
+                'Tente novamente mais tarde ou verifique sua conexão.',
+              variant: 'destructive',
+            });
+            break;
+          }
+          const flattenedCampaigns = campaignRes.data.map((campaign) => {
+            return {
+              // tipo: enum,
+              status: true,
+              objective: campaign.objective,
+              account_id: campaign.account_id,
+              budget_remaining: campaign.budget_remaining,
+              buying_type: campaign.buying_type,
+              daily_budget: campaign.daily_budget,
+              effective_status: campaign.effective_status,
+              start_time: campaign.start_time,
+              updated_time: campaign.updated_time,
+              fb_ad_account_id: selectedAccount.id,
+              name: campaign.name,
+              campaign_id: campaign.id,
+              created_time: campaign.created_time,
+            };
+          });
+
+          const campaignResponse =
+            await supabaseServiceFacebookAds.saveFacebookCampaign(
+              flattenedCampaigns
+            );
+
+          if (!campaignResponse.success || !campaignResponse.data) {
+            toast({
+              title: 'Erro ao completar a conexão campaignResponse',
+              description:
+                campaignResponse.message ||
+                'Tente novamente mais tarde ou verifique sua conexão.',
+              variant: 'destructive',
+            });
+            break;
+          }
+
+          const flattenedCampaignAds = campaignRes.data.flatMap((campanha) => {
+            const campaignData = campaignResponse.data.find(
+              (camp) => camp.campaign_id == campanha.id
+            );
+            if (campaignData && campanha?.ads?.data) {
+              return campanha.ads.data.map((ad) => ({
+                ad_id: ad.id,
+                campaign_id: campaignData.id,
+              }));
+            }
+            return [];
+          });
+
+          if (flattenedCampaignAds.length) {
+            const resultCampaignAds =
+              await supabaseServiceFacebookAds.saveFacebookCampaignAds(
+                flattenedCampaignAds
+              );
+
+            if (!resultCampaignAds.success || !resultCampaignAds.data) {
+              toast({
+                title: 'Erro ao completar a conexão campaignResponse',
+                description:
+                  campaignResponse.message ||
+                  'Tente novamente mais tarde ou verifique sua conexão.',
+                variant: 'destructive',
+              });
+              break;
+            }
+          }
+        }
+
+        // Se tudo ocorreu bem, exibe a mensagem de sucesso
+        toast({
+          title: 'Conexão completada com sucesso',
+          description: 'As contas de anúncios foram sincronizadas com sucesso.',
+        });
+      } else {
+        toast({
+          title: 'Erro ao completar a conexão',
+          description:
+            message || 'Tente novamente mais tarde ou verifique sua conexão.',
+          variant: 'destructive',
+        });
+      }
     } catch (error: any) {
-      console.log('error ', error);
       return {
         success: false,
         title: 'Erro ao solicitar',
@@ -229,12 +354,11 @@ export const FacebookAdsAuthProvider: React.FC<{
         handleConnectFacebookAds,
         fetchGetAllIntegration,
         fetchGetAdAccounts,
-        fetchPutAdAccounts,
+        fetchPutAdAccountsAdsCampaigns,
 
         //STATES
         adAccounts,
         integrations,
-
         isLoadingSelectAdAccounts,
         isLoadingIntegration,
         isConnectingFacebookAds,

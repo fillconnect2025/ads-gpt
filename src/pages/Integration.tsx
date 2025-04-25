@@ -38,92 +38,6 @@ import {
   Zap,
 } from 'lucide-react';
 
-// Mock connected accounts data
-const connectedAccounts = [
-  {
-    id: 1,
-    name: 'Main Business',
-    accountId: '385729102',
-    status: 'connected',
-    lastSync: '2023-06-20 14:30',
-    campaigns: 12,
-    adSets: 35,
-    ads: 126,
-  },
-  {
-    id: 2,
-    name: 'Marketing Account',
-    accountId: '485921673',
-    status: 'connected',
-    lastSync: '2023-06-18 09:15',
-    campaigns: 8,
-    adSets: 21,
-    ads: 94,
-  },
-  {
-    id: 3,
-    name: 'Test Account',
-    accountId: '267394501',
-    status: 'disconnected',
-    lastSync: '2023-06-10 11:45',
-    campaigns: 3,
-    adSets: 7,
-    ads: 15,
-  },
-];
-
-// Mock permissions data
-const permissionStatus = [
-  { name: 'View Campaigns', status: 'granted' },
-  { name: 'View Ad Insights', status: 'granted' },
-  { name: 'View Page Posts', status: 'granted' },
-  { name: 'Manage Campaigns', status: 'granted' },
-  { name: 'Manage Ads', status: 'granted' },
-  { name: 'View Ad Sets', status: 'granted' },
-  { name: 'Manage Pages', status: 'denied' },
-  { name: 'Manage Page Posts', status: 'pending' },
-];
-
-// Mock log data
-const integrationLogs = [
-  {
-    timestamp: '2023-06-20 14:30:12',
-    event: 'Sync completed',
-    status: 'success',
-    message: 'Successfully synced 126 ads from Main Business account',
-  },
-  {
-    timestamp: '2023-06-20 14:29:45',
-    event: 'Sync started',
-    status: 'info',
-    message: 'Starting sync for Main Business account',
-  },
-  {
-    timestamp: '2023-06-18 09:15:33',
-    event: 'Sync completed',
-    status: 'success',
-    message: 'Successfully synced 94 ads from Marketing Account',
-  },
-  {
-    timestamp: '2023-06-18 09:14:22',
-    event: 'Sync started',
-    status: 'info',
-    message: 'Starting sync for Marketing Account',
-  },
-  {
-    timestamp: '2023-06-10 11:45:51',
-    event: 'Authentication error',
-    status: 'error',
-    message: 'Failed to connect to Test Account due to expired token',
-  },
-  {
-    timestamp: '2023-06-10 11:44:18',
-    event: 'Sync started',
-    status: 'info',
-    message: 'Starting sync for Test Account',
-  },
-];
-
 const Integration = () => {
   const {
     // FUNCTION
@@ -265,18 +179,31 @@ const Integration = () => {
                               </div>
                             </div>
                           </div>
-
                           <div className="grid grid-cols-3 gap-4 md:w-auto w-full">
-                            {integration.fb_portfolio?.length !== 0 && (
-                              <div className="p-3 bg-blue-50 rounded-lg text-center">
-                                <p className="text-xs text-blue-700">
-                                  Portfolios
-                                </p>
-                                <p className="text-lg font-bold text-blue-900">
-                                  {integration.fb_portfolio?.length ?? 0}
-                                </p>
-                              </div>
-                            )}
+                            <div className="p-3 bg-blue-50 rounded-lg text-center">
+                              <p className="text-xs text-blue-700">
+                                Contas de anúncios
+                              </p>
+                              <p className="text-lg font-bold text-blue-900">
+                                {integration.qtd.adAccountQtd ?? 0}
+                              </p>
+                            </div>
+
+                            <div className="p-3 bg-purple-50 rounded-lg text-center">
+                              <p className="text-xs text-purple-700">
+                                Campanhas
+                              </p>
+                              <p className="text-lg font-bold text-purple-900">
+                                {integration.qtd.campaignQtd ?? 0}
+                              </p>
+                            </div>
+
+                            <div className="p-3 bg-green-50 rounded-lg text-center">
+                              <p className="text-xs text-green-700">Anúncios</p>
+                              <p className="text-lg font-bold text-green-900">
+                                {integration.qtd.adQtd ?? 0}
+                              </p>
+                            </div>
                           </div>
                         </div>
 
